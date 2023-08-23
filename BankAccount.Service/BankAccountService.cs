@@ -69,6 +69,8 @@ namespace BankAccount.Service
             return accountData;            
         }
 
+
+        // This function return all the accounts 
         public IEnumerable<AccountInformation> GetAllBankAccountsAsync()
         {
             var accountList = (from B in _dbContext.BankAccountDbs
@@ -83,32 +85,25 @@ namespace BankAccount.Service
             return accountList;
         }
 
+        // Checking whether the account exist or not
         private bool CheckExistingAccount(int accNO)
         {
             return _dbContext.BankAccountDbs.Any(x => x.AccountNumber == accNO);
         }
 
+
+        // Get account with speciic account number
         public  AccountInformation GetBankAccount(int accountNo)
         {
             if(CheckExistingAccount(accountNo) == false)
             {
                 return null;
             }
-            var accountList =  (from B in _dbContext.BankAccountDbs
-                               join A in _dbContext.AccountHolderDbs on B.AccountHolderNo
-                               equals A.Id
-                               select new  AccountInformation()
-                               {
-                                   AccountNumber = B.AccountNumber,
-                                   AccountType = B.AccountType,
-                                   Name = A.Name,
-                                   Status = B.Status,
-                                   AvailableBalance = B.AvailableBalance
-                               }).Where(k => k.AccountNumber == accountNo).FirstOrDefault();
-
+            var accountList =  GetAccountDetails(accountNo);
 
             return   accountList;
         }
+
 
         private AccountInformation GetAccountDetails(int accountNo)
         {
@@ -179,7 +174,7 @@ namespace BankAccount.Service
                 " Date and Time "+ transaction.TimeStamp;
         }
 
-
+        // The withdrawal amount cannot be less than or equal to 0
         private bool withdrawalAmountLessZoro(double withdrawalAmount)
         {
             if(withdrawalAmount < 1)
@@ -189,6 +184,7 @@ namespace BankAccount.Service
             return false;
         }
 
+        //The withdrawal amount cannot be greater than the available balance
         private bool amountIsGreaterThanBalance(double withdrawal, double balance)
         {
             if (withdrawal > balance)
@@ -198,6 +194,7 @@ namespace BankAccount.Service
             return false;
         }
 
+        //Fixed Deposit account type. withdraw 100%
         private bool fixedDepositAmount(double withdrawal, double balance)
         {
             if (withdrawal <= balance)
@@ -207,6 +204,7 @@ namespace BankAccount.Service
             return false;
         }
 
+        //List of data that will be populated into database
         private List<AccountData> DataSource()
         {
             return new List<AccountData> { 

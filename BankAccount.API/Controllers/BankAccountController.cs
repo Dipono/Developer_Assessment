@@ -20,7 +20,10 @@ namespace BankAccount.API.Controllers
             _bankAccount = bankAccount;
             _configuration = configuration;
         }
-
+        /*  Initialize Endpoint assign prepopulated with a list of account holders (firstname, lastname,
+            date of birth, ID number, residential address, mobile number and e-mail address) and the 
+            bank accounts linked to the account holders.
+         */
         [HttpPost]
         public async Task<IActionResult> Initialize()
         {
@@ -40,6 +43,10 @@ namespace BankAccount.API.Controllers
             return Ok(responseWrapper);
         }
 
+        /*
+         * Retrieve a list of bank accounts for a given account holder
+         */
+
         [HttpGet]
         public List<AccountInformation> BankAccountList()
         {
@@ -48,32 +55,44 @@ namespace BankAccount.API.Controllers
             return results;
         }
 
+
+        /*
+         Retrieve a single bank account for a given account number
+         */
         [HttpPost]
         public AccountInformation GetAccount([FromBody] int accountNumber)
         {
-            //var responseWrapper = new ResponseWrapper();
-            //responseWrapper.success = false;
+           
 
             var results = _bankAccount.GetBankAccount(accountNumber);
             if (results == null)
             {
-
-                //responseWrapper.Message = "Wrong account number";
                 return results;
             }
 
-            // responseWrapper.success = true;
-            //responseWrapper.Message = "Access granted";
             results.Token = GetToken(accountNumber);
             return results;
         }
 
+
+        /*
+         * withdrawal for a given bank account with amount
+         */
+        /// <summary>
+        /// </summary>
+        /// <param name="withdraw"></param>
+        /// <returns>return the string message</returns>
         [HttpPost]
         public string makeWithdrawal([FromBody] Withdrawal withdraw)
         {
             return _bankAccount.Withdrawal(withdraw);
         }
 
+        /// <summary>
+        /// Defining the JWT
+        /// </summary>
+        /// <param name="accountNumber"></param>
+        /// <returns></returns>
         private string GetToken(int accountNumber)
         {
             var claims = new[]
